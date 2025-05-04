@@ -12,24 +12,37 @@ document.addEventListener('DOMContentLoaded', function() {
         titleCount.textContent = titleInput.value.length;
     }
 
-    // Thumbnail preview handler
-    function handleFileSelect() {
+    async function handleFileSelect() {
         if (this.files && this.files[0]) {
             const reader = new FileReader();
             
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 thumbnailPreview.innerHTML = '';
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.style.maxWidth = '100%';
                 img.style.maxHeight = '180px';
                 thumbnailPreview.appendChild(img);
+                
+                // Add analysis results
+                const analysis = await analyzeThumbnail(e.target.result);
+                const analysisDiv = document.createElement('div');
+                analysisDiv.className = 'thumbnail-analysis';
+                analysisDiv.innerHTML = `
+                    <h4>Thumbnail Analysis</h4>
+                    <ul>
+                        <li>Resolution: ${analysis.resolution}</li>
+                        <li>Aspect Ratio: ${analysis.aspectRatio} 
+                            ${analysis.isRecommendedRatio ? '✓' : '⚠️'}</li>
+                        <li>Brightness: ${analysis.brightnessNote}</li>
+                    </ul>
+                `;
+                thumbnailPreview.appendChild(analysisDiv);
             };
             
             reader.readAsDataURL(this.files[0]);
         }
     }
-
     
     function generatePreview() {
         const title = titleInput.value.trim();
@@ -65,6 +78,57 @@ document.addEventListener('DOMContentLoaded', function() {
     fileInput.addEventListener('change', handleFileSelect);
     previewButton.addEventListener('click', generatePreview);
 });
+
+function analyzeThumbnail(imageSrc) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.src = imageSrc;
+        
+        img.onload = function() {
+            // Basic checks
+            const aspectRatio = img.width / img.height;
+            const is16to9 = Math.abs(aspectRatio - 16/9) < 0.1;
+            
+            // Create a canvas to analyze colors
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            // Get image data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            // Calculate brightness variance
+            let brightnessSum = 0;
+            let brightnessValues = [];
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const brightness = (r + g + b) / 3;
+                brightnessSum += brightness;
+                brightnessValues.push(brightness);
+            }
+            
+            const avgBrightness = brightnessSum / (brightnessValues.length);
+            
+            resolve({
+                resolution: `${img.width}×${img.height}`,
+                aspectRatio: aspectRatio.toFixed(2),
+                isRecommendedRatio: is16to9,
+                averageBrightness: Math.round(avgBrightness),
+                brightnessNote: avgBrightness > 150 ? 
+                    'May be too bright' : avgBrightness < 50 ? 
+                    'May be too dark' : 'Good brightness',
+                textContrast: 'Check text contrast', // Would need text detection
+                faceDetected: false
+            });
+        };
+    });
+}
 
 function renderFeed(userThumb, userTitle, userChannel) {
     const feed = document.getElementById("youtubeFeed");
@@ -110,6 +174,10 @@ function renderFeed(userThumb, userTitle, userChannel) {
 const themeToggle = document.getElementById('themeToggle');
 const currentTheme = localStorage.getItem('theme') || 'light';
 
+document.getElementById('themeToggle').addEventListener('click', () => {
+    document.documentElement.toggleAttribute('data-theme', 'dark');
+  });
+
 // Apply the saved theme
 document.documentElement.setAttribute('data-theme', currentTheme);
 themeToggle.innerHTML = currentTheme === 'dark' ? 
@@ -126,6 +194,11 @@ themeToggle.addEventListener('click', () => {
     '<i class="material-icons">brightness_4</i>';
 });
 
+
+/*
+Plant to move thumbnails, titles, channels, views & times all into a json.
+Will also set up a script to automate this and ad some more every week/month maybe
+*/
 function generateFakeVideos() {
     const thumbnails = [
         "https://i.ytimg.com/vi/ysz5S6PUM-U/hqdefault.jpg",
@@ -160,7 +233,7 @@ function generateFakeVideos() {
     const times = ["30 minutes ago","1 hour ago", "2 hours ago", "3 days ago", "1 week ago", "2 months ago", "1 year ago"];
 
     let videos = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
         videos.push({
             title: titles[Math.floor(Math.random() * titles.length)],
             channel: channels[Math.floor(Math.random() * channels.length)],

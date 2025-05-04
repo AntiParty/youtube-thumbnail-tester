@@ -421,6 +421,35 @@ body {
   color: var(--text-primary);
   font-weight: bold;
 }
+.thumbnail-analysis {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.thumbnail-analysis h4 {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.thumbnail-analysis ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.thumbnail-analysis li {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.thumbnail-analysis li:before {
+  content: "•";
+  color: var(--youtube-red);
+  margin-right: 8px;
+}
 
 .video-details h3 {
   font-size: 0.875rem;
