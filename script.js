@@ -196,7 +196,7 @@ themeToggle.addEventListener('click', () => {
 
 
 /*
-Plant to move thumbnails, titles, channels, views & times all into a json.
+Plan to move thumbnails, titles, channels, views & times all into a json.
 Will also set up a script to automate this and ad some more every week/month maybe
 */
 function generateFakeVideos() {
