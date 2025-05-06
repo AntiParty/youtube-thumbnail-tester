@@ -12,16 +12,46 @@ const CHANNEL_IDS = [
 const MAX_RESULTS = 10;
 const OUTPUT_PATH = './videos.json';
 
+async function fetchVideoDuration(videoId) {
+  const url = `https://www.googleapis.com/youtube/v3/videos?key=${API_KEY}&id=${videoId}&part=contentDetails`;
+  const response = await axios.get(url);
+  const video = response.data.items[0];
+  if (video) {
+    // Parse the duration string (e.g., PT10M30S)
+    const duration = video.contentDetails.duration;
+    const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+    const hours = match[1] ? parseInt(match[1]) : 0;
+    const minutes = match[2] ? parseInt(match[2]) : 0;
+    const seconds = match[3] ? parseInt(match[3]) : 0;
+    const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+    console.log(totalSeconds)
+    return totalSeconds;
+  }
+  return 0;
+}
+
 async function fetchVideosFromChannel(channelId) {
   const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${channelId}&part=snippet&order=date&type=video&maxResults=${MAX_RESULTS}`;
   const response = await axios.get(url);
-  return response.data.items.map(item => ({
-    title: item.snippet.title,
-    channel: item.snippet.channelTitle,
-    thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default.url,
-    views: "442k views",
-    time: new Date(item.snippet.publishedAt).toLocaleDateString()
-  }));
+  const items = response.data.items;
+
+  const videos = [];
+  for (const item of items) {
+    const videoId = item.id.videoId;
+    const videoDuration = await fetchVideoDuration(videoId);
+
+    // Only include videos that are longer than 60 seconds (non-Shorts)
+    if (videoDuration >= 120) {
+      videos.push({
+        title: item.snippet.title,
+        channel: item.snippet.channelTitle,
+        thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default.url,
+        views: "442k views",  // This can be updated if you fetch view counts as well
+        time: new Date(item.snippet.publishedAt).toLocaleDateString(),
+      });
+    }
+  }
+  return videos;
 }
 
 async function updateVideoJSON() {
@@ -31,6 +61,7 @@ async function updateVideoJSON() {
     try {
       const videos = await fetchVideosFromChannel(channelId);
       allVideos.push(...videos);
+      console.log(...videos)
     } catch (error) {
       console.error(`Failed to fetch from channel ${channelId}:`, error.message);
     }
