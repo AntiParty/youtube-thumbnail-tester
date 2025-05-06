@@ -130,12 +130,13 @@ function analyzeThumbnail(imageSrc) {
     });
 }
 
-function renderFeed(userThumb, userTitle, userChannel) {
+async function renderFeed(userThumb, userTitle, userChannel) {
     const feed = document.getElementById("youtubeFeed");
     if (!feed) return;
     
     feed.innerHTML = "";
-    const fakeVideos = generateFakeVideos();
+
+    const fakeVideos = await loadFakeVideos();
 
     // Insert user's video randomly in the fake feed
     const insertIndex = Math.floor(Math.random() * (fakeVideos.length + 1));
@@ -144,7 +145,7 @@ function renderFeed(userThumb, userTitle, userChannel) {
         title: userTitle,
         channel: userChannel,
         views: Math.floor(Math.random() * 1000000).toLocaleString() + " views",
-        time: Math.floor(Math.random() * 30) + 1 + " days ago"
+        time: Math.floor(Math.random() * 30) + " days ago"
     });
 
     fakeVideos.forEach(video => {
@@ -194,53 +195,8 @@ themeToggle.addEventListener('click', () => {
     '<i class="material-icons">brightness_4</i>';
 });
 
-
-/*
-Plan to move thumbnails, titles, channels, views & times all into a json.
-Will also set up a script to automate this and ad some more every week/month maybe
-*/
-function generateFakeVideos() {
-    const thumbnails = [
-        "https://i.ytimg.com/vi/ysz5S6PUM-U/hqdefault.jpg",
-        "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-        "https://i.ytimg.com/vi/tgbNymZ7vqY/hqdefault.jpg",
-        "https://i.ytimg.com/vi/eYq7WapuDLU/hqdefault.jpg",
-        "https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg",
-        "https://i.ytimg.com/vi/JGwWNGJdvx8/hqdefault.jpg",
-        "https://i.ytimg.com/vi/0yUaCPb_P-g/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLCFP0ELpGVx17v2gJVslvhTjY3wyw",
-        "https://i.ytimg.com/vi/ycJGIKLE9hg/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLAND5fNEg8P2DjX96untalUiW1nnQ",
-        "https://i.ytimg.com/vi/6HGat7bJ7Fk/hq720.jpg?sqp=-oaymwFBCNAFEJQDSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGGUgZShlMA8=&rs=AOn4CLA3-xtxgn_Qgx0YvpLdQI3PE75i-g",
-        "https://i.ytimg.com/vi/niWpfRyvs2U/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLCswtozBDUWBwVrcatxVbdfX8OC2g",
-    ];
-    
-    const titles = [
-        "10 Tips You Didn't Know!",
-        "You WON'T Believe This!",
-        "How to Grow on YouTube",
-        "Reacting to My First Video",
-        "Daily Vlog #32 – Let's Talk",
-        "Best Editing Tricks in 2025",
-        "I Tried This for 30 Days... Here's What Happened",
-        "The Ultimate Guide to Video Editing",
-        "5 Things I Wish I Knew Before Starting YouTube",
-        "Behind the Scenes of My Most Popular Video",
-        "Apple just got Completely Destroyed in Court...",
-        "7 Programming Myths that waste your time"
-    ];
-    
-    const channels = ["TechGuy", "LifeWithAmy", "FilmTips", "WorldExplorer", "CookingMaster", "TravelDiaries", "GamerPro", "FitnessCoach", "Antiparty", "SomeOrdinaryGamers", "Fireship"];
-    const views = ["1.2M views", "456K views", "7.8M views", "23K views", "112K views", "3.4M views", "200 views", "1.2k views"];
-    const times = ["30 minutes ago","1 hour ago", "2 hours ago", "3 days ago", "1 week ago", "2 months ago", "1 year ago"];
-
-    let videos = [];
-    for (let i = 0; i < 20; i++) {
-        videos.push({
-            title: titles[Math.floor(Math.random() * titles.length)],
-            channel: channels[Math.floor(Math.random() * channels.length)],
-            thumbnail: thumbnails[Math.floor(Math.random() * thumbnails.length)],
-            views: views[Math.floor(Math.random() * views.length)],
-            time: times[Math.floor(Math.random() * times.length)]
-        });
-    }
-    return videos;
+async function loadFakeVideos() {
+    const response = await fetch('videos.json');
+    const data = await response.json();
+    return data;
 }
