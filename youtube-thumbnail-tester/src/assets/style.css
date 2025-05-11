@@ -1,0 +1,545 @@
+:root {
+  --youtube-red: #ff0000;
+  --youtube-dark: #0f0f0f;
+  --youtube-light-dark: #272727;
+  --youtube-gray: #aaaaaa;
+  --youtube-light-gray: #f1f1f1;
+  --text-primary: #030303;
+  --text-secondary: #606060;
+  --bg-primary: white;
+  --bg-secondary: #f9f9f9;
+  --border-color: #e5e5e5;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] {
+  --youtube-red: #ff0000;
+  --youtube-dark: #f1f1f1;
+  --youtube-light-dark: #272727;
+  --youtube-gray: #717171;
+  --youtube-light-gray: #0f0f0f;
+  --text-primary: #f1f1f1;
+  --text-secondary: #aaa;
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #272727;
+  --border-color: #383838;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* Header Styles */
+.youtube-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  height: 56px;
+  background-color: var(--bg-primary);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  flex: 0 1 640px;
+}
+
+.youtube-logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.youtube-logo i {
+  color: var(--youtube-red);
+  margin-right: 4px;
+}
+
+.search-bar {
+  display: flex;
+  width: 100%;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px 0 0 20px;
+  font-size: 1rem;
+  outline: none;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.search-button {
+  padding: 8px 20px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-radius: 0 20px 20px 0;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--youtube-red);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+/* Dark Mode Toggle */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Container Layout */
+.container {
+  display: flex;
+  min-height: calc(100vh - 56px);
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 240px;
+  background-color: var(--bg-primary);
+  padding: 12px 0;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.sidebar-item i {
+  margin-right: 24px;
+  color: var(--text-secondary);
+}
+
+.sidebar-item.active {
+  background-color: var(--bg-secondary);
+  font-weight: 500;
+}
+
+.sidebar-item.active i {
+  color: var(--youtube-red);
+}
+
+.sidebar hr {
+  border: none;
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 12px 0;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 24px;
+}
+
+/* Upload Section */
+.upload-section {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.upload-section h1 {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.upload-section h1 i {
+  color: var(--youtube-red);
+  margin-right: 12px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.upload-form {
+  max-width: 600px;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.form-group input[type="text"]:focus {
+  border-color: var(--youtube-red);
+  outline: none;
+}
+
+.character-count {
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+/* File Upload */
+.file-upload {
+  position: relative;
+}
+
+.upload-box {
+  border: 2px dashed var(--border-color);
+  border-radius: 4px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+}
+
+.upload-box:hover {
+  border-color: var(--youtube-red);
+  background-color: var(--bg-secondary);
+}
+
+.upload-box i {
+  font-size: 3rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.upload-box span {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.upload-box input[type="file"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+/* Buttons */
+.preview-button {
+  background-color: var(--youtube-red);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 24px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+}
+
+.preview-button:hover {
+  background-color: #cc0000;
+}
+
+/* Feed Section */
+.feed-section {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.feed-header h2 {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.feed-header h2 i {
+  margin-right: 12px;
+  color: var(--youtube-red);
+}
+
+.view-options {
+  display: flex;
+  gap: 8px;
+}
+
+.view-option {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.view-option.active {
+  background-color: var(--bg-secondary);
+  color: var(--youtube-red);
+}
+
+/* Video Feed */
+.feed {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.video-tile {
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s;
+  background-color: var(--bg-primary);
+}
+
+.video-tile:hover {
+  transform: translateY(-4px);
+}
+
+.video-thumbnail {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.video-thumbnail img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-info {
+  padding: 12px 0;
+  display: flex;
+}
+
+.channel-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  margin-right: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-weight: bold;
+}
+.thumbnail-analysis {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.thumbnail-analysis h4 {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.thumbnail-analysis ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.thumbnail-analysis li {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.thumbnail-analysis li:before {
+  content: "•";
+  color: var(--youtube-red);
+  margin-right: 8px;
+}
+
+.video-details h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.375rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.video-details p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.video-details .metadata {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.video-details .metadata span {
+  margin-right: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  
+  .header-center {
+    flex: 1;
+    margin: 0 12px;
+  }
+  
+  .feed {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .feed {
+    grid-template-columns: 1fr;
+  }
+  
+  .upload-section, .feed-section {
+    padding: 16px;
+  }
+  
+  .main-content {
+    padding: 16px;
+  }
+}
+
+.upload-section,
+.feed-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* Dark mode adjustments for .upload-section and .feed-section */
+[data-theme="dark"] .upload-section,
+[data-theme="dark"] .feed-section {
+  background: rgba(15, 15, 15, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.youtube-header {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Dark mode adjustment for .youtube-header */
+[data-theme="dark"] .youtube-header {
+  background: rgba(15, 15, 15, 0.7);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  overscroll-behavior-y: contain;
+}

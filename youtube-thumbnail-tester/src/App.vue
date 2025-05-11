@@ -1,0 +1,47 @@
+<template>
+  <div>
+    <LoadingScreen v-if="isLoading" @loaded="isLoading = false" />
+    <template v-else>
+      <Header />
+      <div class="container">
+        <Sidebar />
+        <div class="main-content">
+          <UploadSection @generate-preview="handlePreview" />
+          <FeedSection :userVideo="currentVideo" />
+        </div>
+      </div>
+    </template>
+  </div>
+</template>
+
+<script>
+import Header from './components/Header.vue'
+import Sidebar from './components/Sidebar.vue'
+import UploadSection from './components/UploadSection.vue'
+import FeedSection from './components/FeedSection.vue'
+import LoadingScreen from './components/LoadingScreen.vue'
+
+export default {
+  name: 'App',
+  components: {
+    Header,
+    Sidebar,
+    UploadSection,
+    FeedSection,
+    LoadingScreen
+  },
+  data() {
+    return {
+      isLoading: true,
+      currentVideo: null
+    }
+  },
+  methods: {
+    handlePreview(videoData) {
+      this.currentVideo = videoData
+    }
+  }
+}
+</script>
+
+<style src="@/assets/style.css"></style>
