@@ -22,7 +22,7 @@ import FeedSection from './components/FeedSection.vue'
 import LoadingScreen from './components/LoadingScreen.vue'
 
 export default {
-  name: 'App',
+  name: 'Youtube thumbnail Test',
   components: {
     Header,
     Sidebar,

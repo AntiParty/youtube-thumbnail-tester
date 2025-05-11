@@ -26,7 +26,7 @@ export default {
         clearInterval(interval)
         this.$emit('loaded')
       }
-    }, 300)
+    }, 100)
   }
 }
 </script>
