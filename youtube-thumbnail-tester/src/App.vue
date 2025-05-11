@@ -21,6 +21,7 @@ import UploadSection from './components/UploadSection.vue'
 import FeedSection from './components/FeedSection.vue'
 import LoadingScreen from './components/LoadingScreen.vue'
 
+
 export default {
   name: 'Youtube thumbnail Test',
   components: {
