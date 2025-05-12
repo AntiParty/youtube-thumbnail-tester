@@ -4,7 +4,7 @@ import { inject } from '@vercel/analytics';
 import 'material-icons/iconfont/material-icons.css' 
 import 'animate.css'
 
-inject();
+inject({});
 
 const app = createApp(App)
 app.mount('#app')

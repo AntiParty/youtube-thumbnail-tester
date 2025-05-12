@@ -540,6 +540,20 @@ body {
 html {
   scroll-behavior: smooth;
 }
-body {
-  overscroll-behavior-y: contain;
+
+@media (prefers-reduced-motion: reduce), 
+       (update: slow), 
+       (--performance-mode: low) {
+  .video-tile:hover {
+    transform: none !important;
+    opacity: 0.9;
+  }
+  
+  .video-thumbnail img {
+    transition: none !important;
+  }
+  
+  .loading-screen .youtube-loader-icon {
+    animation: none !important;
+  }
 }

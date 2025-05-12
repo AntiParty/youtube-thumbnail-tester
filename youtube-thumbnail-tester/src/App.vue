@@ -34,10 +34,27 @@ export default {
   data() {
     return {
       isLoading: true,
-      currentVideo: null
+      currentVideo: null,
+      performanceMode: 'low'
     }
   },
+  created() {
+    this.detectPerformanceMode();
+  },
   methods: {
+    detectPerformanceMode() {
+      const canvas = document.createElement('canvas')
+      const gl = canvas.getContext('webgl')
+      if (!gl) {
+        this.performanceMode = 'low'
+        return;
+      }
+
+      const isSlowDevice = navigator.hardwareConcurrency < 4 || 
+                          (navigator.deviceMemory || 4) < 4
+      this.performanceMode = isSlowDevice ? 'low' : 'high'
+    },
+
     handlePreview(videoData) {
       this.currentVideo = videoData
     }
