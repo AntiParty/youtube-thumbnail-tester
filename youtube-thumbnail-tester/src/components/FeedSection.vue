@@ -2,15 +2,33 @@
   <div class="feed-section">
     <div class="feed-header">
       <h2><i class="material-icons">home</i> Home Feed Preview</h2>
-      <div class="view-options">
-        <button class="view-option active"><i class="material-icons">grid_view</i></button>
-        <button class="view-option"><i class="material-icons">view_agenda</i></button>
-      </div>
     </div>
     <div id="youtubeFeed" class="feed">
-      <div class="video-tile" v-for="(video, index) in videos" :key="index">
+      <!-- User's video (always loaded first) -->
+      <div class="video-tile" v-if="userVideo">
         <div class="video-thumbnail">
-          <img :src="video.thumbnail" alt="Video Thumbnail" />
+          <img :src="userVideo.thumbnail" alt="User Thumbnail" />
+        </div>
+        <div class="video-info">
+          <div class="channel-icon">{{ userVideo.channel.charAt(0) }}</div>
+          <div class="video-details">
+            <h3>{{ userVideo.title }}</h3>
+            <p>{{ userVideo.channel }}</p>
+            <div class="metadata">
+              <span>New upload</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison videos -->
+      <div 
+        class="video-tile" 
+        v-for="(video, index) in comparisonVideos" 
+        :key="index"
+      >
+        <div class="video-thumbnail">
+          <img :src="video.thumbnail" :alt="video.title" />
         </div>
         <div class="video-info">
           <div class="channel-icon">{{ video.channel.charAt(0) }}</div>
@@ -48,7 +66,6 @@
   transform: translateY(-5px) scale(1.02);
 }
 </style>
-
 <script>
 export default {
   name: 'FeedSection',
@@ -60,38 +77,42 @@ export default {
   },
   data() {
     return {
-      videos: []
+      comparisonVideos: []
     }
   },
   async created() {
-    await this.loadFakeVideos()
-  },
-  watch: {
-    userVideo(newVideo) {
-      if (newVideo) {
-        this.insertUserVideo(newVideo)
-      }
-    }
+    await this.loadComparisonVideos()
   },
   methods: {
-    async loadFakeVideos() {
+    async loadComparisonVideos() {
       try {
         const response = await fetch('/videos.json')
-        this.videos = await response.json()
+        const data = await response.json()
+        this.comparisonVideos = data.map(video => ({
+          ...video,
+          views: this.formatViews(Math.floor(Math.random() * 1000000)),
+          time: this.formatTime(Math.floor(Math.random() * 30))
+        }))
       } catch (error) {
         console.error('Error loading videos:', error)
-        this.videos = []
+        this.comparisonVideos = []
       }
     },
-    insertUserVideo(userVideo) {
-      const videoWithMetadata = {
-        ...userVideo,
-        views: Math.floor(Math.random() * 1000000).toLocaleString() + " views",
-        time: Math.floor(Math.random() * 30) + " days ago"
+    formatViews(count) {
+      if (count >= 1000000) {
+        return `${(count/1000000).toFixed(1)}M views`
       }
-      
-      const insertIndex = Math.floor(Math.random() * (this.videos.length + 1))
-      this.videos.splice(insertIndex, 0, videoWithMetadata)
+      if (count >= 1000) {
+        return `${(count/1000).toFixed(1)}K views`
+      }
+      return `${count} views`
+    },
+    formatTime(days) {
+      if (days === 0) return 'Today'
+      if (days === 1) return 'Yesterday'
+      if (days < 7) return `${days} days ago`
+      if (days < 30) return `${Math.floor(days/7)} weeks ago`
+      return `${Math.floor(days/30)} months ago`
     }
   }
 }
