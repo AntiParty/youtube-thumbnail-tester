@@ -9,7 +9,7 @@
   --bg-primary: white;
   --bg-secondary: #f9f9f9;
   --border-color: #e5e5e5;
-  --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 [data-theme="dark"] {
@@ -23,7 +23,7 @@
   --bg-primary: #0f0f0f;
   --bg-secondary: #272727;
   --border-color: #383838;
-  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 * {
@@ -35,6 +35,7 @@
 
 body {
   font-family: 'Roboto', Arial, sans-serif;
+  font-display: swap; /* Use fallback until the font is loaded */
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   line-height: 1.6;
@@ -269,11 +270,6 @@ body {
   background-color: var(--bg-primary);
 }
 
-.upload-box:hover {
-  border-color: var(--youtube-red);
-  background-color: var(--bg-secondary);
-}
-
 .upload-box i {
   font-size: 3rem;
   color: var(--text-secondary);
@@ -380,10 +376,6 @@ body {
   overflow: hidden;
   transition: transform 0.3s;
   background-color: var(--bg-primary);
-}
-
-.video-tile:hover {
-  transform: translateY(-4px);
 }
 
 .video-thumbnail {
@@ -502,6 +494,7 @@ body {
   
   .upload-section, .feed-section {
     padding: 16px;
+    backdrop-filter: none;
   }
   
   .main-content {
@@ -509,11 +502,8 @@ body {
   }
 }
 
-.upload-section,
-.feed-section {
+.upload-section, .feed-section {
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); /* Safari support */
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);

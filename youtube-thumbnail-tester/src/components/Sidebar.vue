@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar">
+  <div class="sidebar" v-once>
     <div class="sidebar-item active">
       <i class="material-icons">home</i>
       <span>Home</span>

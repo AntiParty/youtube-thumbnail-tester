@@ -1,6 +1,6 @@
 <template>
   <header class="youtube-header">
-    <div class="header-left">
+    <div class="header-left" v-once>
       <div class="menu-icon">
         <i class="material-icons">menu</i>
       </div>
