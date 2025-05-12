@@ -4,16 +4,16 @@
       <h2><i class="material-icons">home</i> Home Feed Preview</h2>
     </div>
     <div id="youtubeFeed" class="feed">
-      <!-- User's video (always loaded first) -->
-      <div class="video-tile" v-if="userVideo">
+      <!-- User's video -->
+      <div class="video-tile" v-if="userVideo && userVideo.thumbnail">
         <div class="video-thumbnail">
           <img :src="userVideo.thumbnail" alt="User Thumbnail" />
         </div>
         <div class="video-info">
-          <div class="channel-icon">{{ userVideo.channel.charAt(0) }}</div>
+          <div class="channel-icon">{{ userVideo.channel?.charAt(0) || '?' }}</div>
           <div class="video-details">
-            <h3>{{ userVideo.title }}</h3>
-            <p>{{ userVideo.channel }}</p>
+            <h3>{{ userVideo.title || 'Untitled' }}</h3>
+            <p>{{ userVideo.channel || 'Unknown channel' }}</p>
             <div class="metadata">
               <span>New upload</span>
             </div>
@@ -28,7 +28,7 @@
         :key="index"
       >
         <div class="video-thumbnail">
-          <img :src="video.thumbnail" :alt="video.title" />
+          <img :src="video.thumbnail" :alt="video.title" loading="lazy" />
         </div>
         <div class="video-info">
           <div class="channel-icon">{{ video.channel.charAt(0) }}</div>
@@ -66,13 +66,20 @@
   transform: translateY(-5px) scale(1.02);
 }
 </style>
+
 <script>
 export default {
   name: 'FeedSection',
   props: {
     userVideo: {
       type: Object,
-      default: null
+      default: null,
+      validator: (value) => {
+        if (value && !value.thumbnail) {
+          console.warn('userVideo prop should have a thumbnail property')
+        }
+        return true
+      }
     }
   },
   data() {

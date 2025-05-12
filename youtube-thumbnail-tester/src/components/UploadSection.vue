@@ -25,8 +25,7 @@
           placeholder="Enter your video title"
         />
         <div class="character-count">
-          <span>{{ titleCount }}</span
-          >/100
+          <span>{{ titleCount }}</span>/100
         </div>
       </div>
       <div class="form-group file-upload">
@@ -53,22 +52,6 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-.fade-slide-enter-active {
-  animation: fadeInUp 0.5s;
-}
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>
 
 <script>
 export default {
@@ -97,7 +80,9 @@ export default {
       const reader = new FileReader();
 
       reader.onload = async (e) => {
-        // Define thumbnailElement first
+        // Set the base64 URL to thumbnailPreview
+        this.thumbnailPreview = e.target.result; 
+
         const thumbnailElement = document.getElementById("thumbnailPreview");
         thumbnailElement.innerHTML = "";
 
@@ -111,23 +96,19 @@ export default {
         const analysisDiv = document.createElement("div");
         analysisDiv.className = "thumbnail-analysis";
         analysisDiv.innerHTML = `
-      <h4>Thumbnail Analysis</h4>
-      <ul>
-        <li>Resolution: ${analysis.resolution}</li>
-        <li>Aspect Ratio: ${analysis.aspectRatio} 
-            ${analysis.isRecommendedRatio ? "✓" : "⚠️"}</li>
-        <li>Brightness: ${analysis.brightnessNote}</li>
-      </ul>
-    `;
+          <h4>Thumbnail Analysis</h4>
+          <ul>
+            <li>Resolution: ${analysis.resolution}</li>
+            <li>Aspect Ratio: ${analysis.aspectRatio} 
+                ${analysis.isRecommendedRatio ? "✓" : "⚠️"}</li>
+            <li>Brightness: ${analysis.brightnessNote}</li>
+          </ul>
+        `;
         thumbnailElement.appendChild(analysisDiv);
 
-        // Now safely add animation classes
         thumbnailElement.classList.add("animate__animated", "animate__zoomIn");
         setTimeout(() => {
-          thumbnailElement.classList.remove(
-            "animate__animated",
-            "animate__zoomIn"
-          );
+          thumbnailElement.classList.remove("animate__animated", "animate__zoomIn");
         }, 1000);
       };
 
@@ -181,13 +162,13 @@ export default {
       });
     },
     generatePreview() {
-      if (!this.videoTitle || !this.channelName || !this.thumbnailFile) {
+      if (!this.videoTitle || !this.channelName || !this.thumbnailPreview) {
         alert(`Please complete all fields`);
         return;
       }
 
       this.$emit("generate-preview", {
-        thumbnail: this.thumbnailPreview, // This should be the direct image URL
+        thumbnail: this.thumbnailPreview, // Use the base64 URL
         title: this.videoTitle,
         channel: this.channelName,
       });
