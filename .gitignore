@@ -1,2 +1,4 @@
 /node_modules
 videos.json
+.env
+scripts/updateVideos.js

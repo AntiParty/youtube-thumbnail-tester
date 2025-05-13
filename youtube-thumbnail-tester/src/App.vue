@@ -26,7 +26,6 @@ export default {
   name: 'Youtube thumbnail Test',
   components: {
     Header,
-    Sidebar,
     UploadSection,
     FeedSection,
     LoadingScreen

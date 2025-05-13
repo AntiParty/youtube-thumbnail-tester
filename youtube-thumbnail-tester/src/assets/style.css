@@ -367,16 +367,21 @@ body {
 /* Video Feed */
 .feed {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
-.video-tile {
-  border-radius: 8px;
-  overflow: hidden;
-  transition: transform 0.3s;
+.video-title {
+  width: 100%; /* Let it fill available space in the grid */
+  max-width: 500px; /* Adjust this based on how big you want it */
   background-color: var(--bg-primary);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+
 
 .video-thumbnail {
   position: relative;
@@ -534,7 +539,7 @@ body {
 @media (prefers-reduced-motion: reduce), 
        (update: slow), 
        (--performance-mode: low) {
-  .video-tile:hover {
+  .video-title:hover {
     transform: none !important;
     opacity: 0.9;
   }
