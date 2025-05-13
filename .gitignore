@@ -3,3 +3,7 @@ videos.json
 .env
 scripts/updateVideos.js
 /scripts
+
+.vercel
+scripts/updateVideos.js
+scripts/updateVideos.js

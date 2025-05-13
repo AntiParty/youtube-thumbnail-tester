@@ -28,6 +28,7 @@ export default {
     Header,
     UploadSection,
     FeedSection,
+    Sidebar,
     LoadingScreen
   },
   data() {
