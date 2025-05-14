@@ -5,6 +5,7 @@
       <Header />
       <div class="container">
         <Sidebar />
+        <Popup></Popup>
         <div class="main-content">
           <UploadSection @generate-preview="handlePreview" />
           <FeedSection :userVideo="currentVideo" />
@@ -20,6 +21,7 @@ import Sidebar from './components/Sidebar.vue'
 import UploadSection from './components/UploadSection.vue'
 import FeedSection from './components/FeedSection.vue'
 import LoadingScreen from './components/LoadingScreen.vue'
+import Popup from './components/Popup.vue'
 
 
 export default {
@@ -29,7 +31,8 @@ export default {
     UploadSection,
     FeedSection,
     Sidebar,
-    LoadingScreen
+    LoadingScreen,
+    Popup
   },
   data() {
     return {

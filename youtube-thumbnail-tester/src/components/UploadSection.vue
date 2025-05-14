@@ -1,10 +1,5 @@
 <template>
-  <div class="upload-section">
-    <h1><i class="material-icons">preview</i> YouTube Thumbnail Tester</h1>
-    <p class="subtitle">
-      See how your video will look in the YouTube feed before you publish
-    </p>
-
+  <div class="upload-preview-container">
     <div class="upload-form">
       <div class="form-group">
         <label for="channelName">Channel Name</label>
@@ -30,25 +25,59 @@
       </div>
       <div class="form-group file-upload">
         <label for="thumbnailUpload">Thumbnail Image</label>
-        <div class="upload-box" id="thumbnailPreview" @click="triggerFileInput">
+        <div class="upload-box" @click="triggerFileInput">
           <i class="material-icons">image</i>
-          <span>Click to upload thumbnail</span>
-          <input
-            type="file"
-            id="thumbnailUpload"
-            ref="fileInput"
-            @change="handleFileSelect"
-            accept="image/*"
-            style="display: none"
-          />
+          <span v-if="!thumbnailPreview">Click to upload thumbnail</span>
+          <img v-if="thumbnailPreview" :src="thumbnailPreview" />
         </div>
-        <div class="upload-hint">
-          Recommended size: 1280x720 pixels (16:9 ratio)
+        <input
+          type="file"
+          id="thumbnailUpload"
+          ref="fileInput"
+          @change="handleFileSelect"
+          accept="image/*"
+          style="display: none"
+        />
+        <div class="upload-hint">Recommended size: 1280x720 pixels (16:9 ratio)</div>
+      </div>
+    </div>
+
+    <!-- Always visible preview section -->
+    <div class="preview-section">
+      <h2>Video Preview</h2>
+      <div class="preview-content">
+        <div class="video-tile">
+          <div class="video-thumbnail">
+            <img v-if="thumbnailPreview" :src="thumbnailPreview" alt="Thumbnail Preview">
+            <div v-else class="thumbnail-placeholder">
+              <i class="material-icons">image</i>
+              <span>Thumbnail Preview</span>
+            </div>
+          </div>
+          <div class="video-info">
+            <div class="channel-icon">
+              {{ channelInitial || 'C' }}
+            </div>
+            <div class="video-details">
+              <h3>{{ videoTitle || "Your Video Title" }}</h3>
+              <p>{{ channelName || "Your Channel Name" }}</p>
+              <div class="metadata"><span>New upload</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analysis sidebar -->
+        <div class="thumbnail-analysis" v-if="thumbnailAnalysis">
+          <h4>Thumbnail Analysis</h4>
+          <ul>
+            <li>Resolution: {{ thumbnailAnalysis.resolution }}</li>
+            <li>Aspect Ratio: {{ thumbnailAnalysis.aspectRatio }}
+              <span>{{ thumbnailAnalysis.isRecommendedRatio ? "✓" : "⚠️" }}</span>
+            </li>
+            <li>Brightness: {{ thumbnailAnalysis.brightnessNote }}</li>
+          </ul>
         </div>
       </div>
-      <button class="preview-button" @click="generatePreview">
-        <i class="material-icons">visibility</i> Generate Preview
-      </button>
     </div>
   </div>
 </template>
@@ -61,9 +90,27 @@ export default {
       videoTitle: "",
       channelName: "",
       thumbnailFile: null,
-      titleCount: 0,
       thumbnailPreview: null,
+      thumbnailAnalysis: null,
+      titleCount: 0,
     };
+  },
+  computed: {
+    channelInitial() {
+      return this.channelName?.charAt(0) || "";
+    },
+  },
+  watch: {
+    // Automatically update the preview when any of these fields change
+    videoTitle() {
+      this.updatePreview();
+    },
+    channelName() {
+      this.updatePreview();
+    },
+    thumbnailPreview() {
+      this.updatePreview();
+    },
   },
   methods: {
     updateCharacterCount() {
@@ -77,39 +124,11 @@ export default {
       if (!file) return;
 
       this.thumbnailFile = file;
+
       const reader = new FileReader();
-
       reader.onload = async (e) => {
-        // Set the base64 URL to thumbnailPreview
-        this.thumbnailPreview = e.target.result; 
-
-        const thumbnailElement = document.getElementById("thumbnailPreview");
-        thumbnailElement.innerHTML = "";
-
-        const img = document.createElement("img");
-        img.src = e.target.result;
-        img.style.maxWidth = "100%";
-        img.style.maxHeight = "180px";
-        thumbnailElement.appendChild(img);
-
-        const analysis = await this.analyzeThumbnail(e.target.result);
-        const analysisDiv = document.createElement("div");
-        analysisDiv.className = "thumbnail-analysis";
-        analysisDiv.innerHTML = `
-          <h4>Thumbnail Analysis</h4>
-          <ul>
-            <li>Resolution: ${analysis.resolution}</li>
-            <li>Aspect Ratio: ${analysis.aspectRatio} 
-                ${analysis.isRecommendedRatio ? "✓" : "⚠️"}</li>
-            <li>Brightness: ${analysis.brightnessNote}</li>
-          </ul>
-        `;
-        thumbnailElement.appendChild(analysisDiv);
-
-        thumbnailElement.classList.add("animate__animated", "animate__zoomIn");
-        setTimeout(() => {
-          thumbnailElement.classList.remove("animate__animated", "animate__zoomIn");
-        }, 1000);
+        this.thumbnailPreview = e.target.result;
+        this.thumbnailAnalysis = await this.analyzeThumbnail(e.target.result);
       };
 
       reader.readAsDataURL(file);
@@ -133,18 +152,13 @@ export default {
           const data = imageData.data;
 
           let brightnessSum = 0;
-          let brightnessValues = [];
 
           for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            const brightness = (r + g + b) / 3;
+            const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
             brightnessSum += brightness;
-            brightnessValues.push(brightness);
           }
 
-          const avgBrightness = brightnessSum / brightnessValues.length;
+          const avgBrightness = brightnessSum / (data.length / 4);
 
           resolve({
             resolution: `${img.width}×${img.height}`,
@@ -161,18 +175,220 @@ export default {
         };
       });
     },
-    generatePreview() {
-      if (!this.videoTitle || !this.channelName || !this.thumbnailPreview) {
-        alert(`Please complete all fields`);
-        return;
+    updatePreview() {
+      // Automatically update preview when any form field changes
+      if (this.videoTitle && this.channelName && this.thumbnailPreview) {
+        this.$emit("generate-preview", {
+          thumbnail: this.thumbnailPreview,
+          title: this.videoTitle,
+          channel: this.channelName,
+        });
       }
-
-      this.$emit("generate-preview", {
-        thumbnail: this.thumbnailPreview, // Use the base64 URL
-        title: this.videoTitle,
-        channel: this.channelName,
-      });
     },
   },
 };
 </script>
+
+<style scoped>
+.upload-preview-container {
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) minmax(500px, 1fr);
+  gap: 2rem;
+  align-items: start;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.upload-form {
+  background-color: var(--bg-primary);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: var(--youtube-red);
+  outline: none;
+}
+
+.character-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.upload-box {
+  cursor: pointer;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background-color: var(--bg-primary);
+  transition: all 0.3s ease;
+  aspect-ratio: 16/9;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.upload-box:hover {
+  border-color: var(--youtube-red);
+  background-color: var(--bg-secondary);
+}
+
+.upload-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.upload-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.preview-section {
+  background-color: var(--bg-primary);
+  padding: 1.5rem;
+  size: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+.preview-content {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  align-items: stretch;
+}
+
+.video-tile {
+  flex: 1;
+  min-width: 400px;
+  min-height: 225px;
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-thumbnail {
+  position: relative;
+  background-color: var(--bg-primary);
+  aspect-ratio: 16/9;
+  width: 100%;
+  height: auto;
+}
+
+.video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbnail-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.video-info {
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  background-color: var(--bg-primary);
+}
+
+.channel-icon {
+  background-color: var(--youtube-light-dark);
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.video-details {
+  flex: 1;
+}
+
+.video-details h3 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.video-details p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0;
+}
+
+.metadata {
+  font-size: 0.75rem;
+  color: #66bb6a;
+  margin-top: 0.5rem;
+}
+
+.thumbnail-analysis {
+  width: 300px;
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.thumbnail-analysis h4 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.thumbnail-analysis ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: var(--text-secondary);
+}
+</style>
