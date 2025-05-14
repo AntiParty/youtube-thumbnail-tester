@@ -100,18 +100,6 @@ export default {
       return this.channelName?.charAt(0) || "";
     },
   },
-  watch: {
-    // Automatically update the preview when any of these fields change
-    videoTitle() {
-      this.updatePreview();
-    },
-    channelName() {
-      this.updatePreview();
-    },
-    thumbnailPreview() {
-      this.updatePreview();
-    },
-  },
   methods: {
     updateCharacterCount() {
       this.titleCount = this.videoTitle.length;
@@ -175,16 +163,6 @@ export default {
         };
       });
     },
-    updatePreview() {
-      // Automatically update preview when any form field changes
-      if (this.videoTitle && this.channelName && this.thumbnailPreview) {
-        this.$emit("generate-preview", {
-          thumbnail: this.thumbnailPreview,
-          title: this.videoTitle,
-          channel: this.channelName,
-        });
-      }
-    },
   },
 };
 </script>
@@ -247,7 +225,7 @@ input[type="text"]:focus {
   cursor: pointer;
   border: 2px dashed var(--border-color);
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1rem; /* Reduced padding */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -255,9 +233,9 @@ input[type="text"]:focus {
   gap: 1rem;
   background-color: var(--bg-primary);
   transition: all 0.3s ease;
-  aspect-ratio: 16/9;
-  box-sizing: border-box;
-  width: 100%;
+  aspect-ratio: 16/9; /* Enforce 16:9 ratio */
+  box-sizing: border-box; /* Include padding in dimensions */
+  width: 100%; /* Ensure full width */
 }
 
 .upload-box:hover {
@@ -268,7 +246,7 @@ input[type="text"]:focus {
 .upload-box img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: contain; /* Show full image with letterboxing */
   border-radius: 4px;
 }
 
@@ -276,6 +254,25 @@ input[type="text"]:focus {
   font-size: 0.85rem;
   color: var(--text-secondary);
   margin-top: 0.5rem;
+}
+
+.preview-button {
+  background-color: var(--youtube-red);
+  color: white;
+  padding: 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.preview-button:hover {
+  opacity: 0.9;
 }
 
 .preview-section {
@@ -291,13 +288,13 @@ input[type="text"]:focus {
   display: flex;
   gap: 2rem;
   margin-top: 1.5rem;
-  align-items: stretch;
+  align-items: stretch; /* ensures both sides stay even height */
 }
 
 .video-tile {
   flex: 1;
   min-width: 400px;
-  min-height: 225px;
+  min-height: 225px; /* Optional: based on 16:9 ratio for 400px width */
   background-color: var(--bg-secondary);
   border-radius: 12px;
   overflow: hidden;
@@ -316,7 +313,7 @@ input[type="text"]:focus {
 .video-thumbnail img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* already correct */
   display: block;
 }
 
@@ -390,5 +387,46 @@ input[type="text"]:focus {
   padding: 0;
   margin: 0;
   color: var(--text-secondary);
+}
+
+.thumbnail-analysis li {
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 1200px) {
+  .upload-preview-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .preview-content {
+    flex-direction: column;
+  }
+  
+  .thumbnail-analysis {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .upload-preview-container {
+    padding: 1rem;
+  }
+  
+  .video-tile {
+    min-width: unset;
+  }
+  
+  .video-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .channel-icon {
+    margin-bottom: 1rem;
+  }
 }
 </style>
