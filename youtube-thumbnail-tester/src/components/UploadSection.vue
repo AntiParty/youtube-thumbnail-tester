@@ -40,6 +40,10 @@
         />
         <div class="upload-hint">Recommended size: 1280x720 pixels (16:9 ratio)</div>
       </div>
+
+      <button class="preview-button" @click="generatePreview">
+        <i class="material-icons">visibility</i> Generate Preview
+      </button>
     </div>
 
     <!-- Always visible preview section -->
@@ -161,6 +165,17 @@ export default {
                 : "Good brightness",
           });
         };
+      });
+    },
+    generatePreview() {
+      if (!this.videoTitle || !this.channelName || !this.thumbnailPreview) {
+        alert("Please complete all fields");
+        return;
+      }
+      this.$emit("generate-preview", {
+        thumbnail: this.thumbnailPreview,
+        title: this.videoTitle,
+        channel: this.channelName,
       });
     },
   },

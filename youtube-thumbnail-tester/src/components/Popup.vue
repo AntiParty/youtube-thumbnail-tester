@@ -1,7 +1,7 @@
 <template>
   <transition name="popup-slide">
     <div v-if="visible" class="popup">
-      🎉 Surprise! Here's a random popup!
+      Made with love ❤️
     </div>
   </transition>
 </template>
@@ -23,10 +23,10 @@ export default {
   },
   mounted() {
     setInterval(() => {
-      if (Math.random() < 0.9) { // 30% chance every 10s
+      if (Math.random() < 0.5) { // 30% chance every 10s
         this.show();
       }
-    }, 5000);
+    }, 10000);
   }
 };
 </script>
