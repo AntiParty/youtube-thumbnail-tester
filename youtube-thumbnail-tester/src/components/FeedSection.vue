@@ -4,29 +4,10 @@
       <h2><i class="material-icons">home</i> Home Feed Preview</h2>
     </div>
     <div id="youtubeFeed" class="feed">
-      <!-- User's video -->
-      <div class="video-tile" v-if="userVideo && userVideo.thumbnail">
-        <div class="video-thumbnail">
-          <img :src="userVideo.thumbnail" alt="User Thumbnail" />
-        </div>
-        <div class="video-info">
-          <div class="channel-icon">
-            {{ userVideo.channel?.charAt(0) || "?" }}
-          </div>
-          <div class="video-details">
-            <h3>{{ userVideo.title || "Untitled" }}</h3>
-            <p>{{ userVideo.channel || "Unknown channel" }}</p>
-            <div class="metadata">
-              <span>New upload</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Comparison videos -->
+      <!-- Combined video list -->
       <div
         class="video-tile"
-        v-for="(video, index) in comparisonVideos"
+        v-for="(video, index) in displayedVideos"
         :key="index"
       >
         <div class="video-thumbnail">
@@ -34,18 +15,29 @@
         </div>
         <div class="video-info">
           <div class="channel-icon">
-            <img :src="video.channelIcon" alt="Channel Icon" />
+            <template v-if="video.isUserVideo">
+              {{ video.channel?.charAt(0) || "?" }}
+            </template>
+            <img v-else :src="video.channelIcon" alt="Channel Icon" />
           </div>
           <div class="video-details">
-            <h3>{{ video.title }}</h3>
-            <p>{{ video.channel }}</p>
+            <h3>{{ video.title || "Untitled" }}</h3>
+            <p>{{ video.channel || "Unknown channel" }}</p>
             <div class="metadata">
-              <span>{{ video.views }}</span>
-              <span>•</span>
-              <span>{{ video.time }}</span>
+              <span v-if="video.isUserVideo">New upload</span>
+              <template v-else>
+                <span>{{ video.views }}</span>
+                <span>•</span>
+                <span>{{ video.time }}</span>
+              </template>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Sentinel element -->
+      <div ref="sentinel" class="loading-sentinel">
+        <p>Loading more...</p>
       </div>
     </div>
   </div>
@@ -118,10 +110,7 @@
   object-fit: cover;
   background-color: #333;
   display: block;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
-  border-bottom-left-radius: 12px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -159,6 +148,13 @@
   color: #999;
   margin-top: 4px;
 }
+
+.loading-sentinel {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px;
+  color: #aaa;
+}
 </style>
 
 <script>
@@ -178,30 +174,83 @@ export default {
   },
   data() {
     return {
-      comparisonVideos: [],
+      allVideos: [],          // All videos fetched and shuffled
+      comparisonVideos: [],   // Currently displayed videos
+      videoBatchSize: 20,     // How many to load per batch
+      loadedCount: 0,         // How many have been loaded so far
+      observer: null,         // IntersectionObserver instance
     };
   },
-  async created() {
-    await this.loadComparisonVideos();
+  async mounted() {
+    await this.fetchAllVideos();
+    this.loadMoreVideos();
+
+    this.observer = new IntersectionObserver(this.onIntersect, {
+      root: null,
+      threshold: 1.0,
+    });
+
+    if (this.$refs.sentinel) {
+      this.observer.observe(this.$refs.sentinel);
+    }
   },
+  beforeDestroy() {
+    if (this.observer && this.$refs.sentinel) {
+      this.observer.unobserve(this.$refs.sentinel);
+    }
+  },
+
+  computed: {
+    displayedVideos(){
+      const combined = [];
+
+      if (this.userVideo && this.userVideo.thumbnail) {
+        combined.push({
+          thumbnail: this.userVideo.thumbnail,
+          title: this.userVideo.title || 'Your video title',
+          channel: this.userVideo.channel || 'Your channel',
+          isUserVideo: true,
+          // Add mock data for consistency
+          views: 'New upload',
+          time: 'Just now'
+        });
+      }
+      return combined.concat(this.comparisonVideos);
+    }
+  },
+
   methods: {
-    async loadComparisonVideos() {
+    async fetchAllVideos() {
       try {
         const response = await fetch("/videos.json");
         const data = await response.json();
-
-        const shuffled = this.shuffleArray(data);
-
-        const randomSubset = shuffled.slice(0, 120); // change 5 to however many you want
-
-        this.comparisonVideos = randomSubset.map((video) => ({
+        this.allVideos = this.shuffleArray(data);
+      } catch (error) {
+        console.error("Failed to fetch videos:", error);
+      }
+    },
+    async loadMoreVideos() {
+      const nextBatch = this.allVideos
+        .slice(this.loadedCount, this.loadedCount + this.videoBatchSize)
+        .map(video => ({
           ...video,
+          isUserVideo: false,
           views: this.formatViews(Math.floor(Math.random() * 1000000)),
           time: this.formatTime(Math.floor(Math.random() * 30)),
+          // Ensure comparison videos have channelIcon
+          channelIcon: video.channelIcon || '/default-channel-icon.png'
         }));
-      } catch (error) {
-        console.error("Error loading videos:", error);
-        this.comparisonVideos = [];
+
+      this.comparisonVideos = [...this.comparisonVideos, ...nextBatch];
+      this.loadedCount += this.videoBatchSize;
+    },
+    onIntersect(entries) {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        // Load more videos only if available
+        if (this.loadedCount < this.allVideos.length) {
+          this.loadMoreVideos();
+        }
       }
     },
     shuffleArray(array) {
